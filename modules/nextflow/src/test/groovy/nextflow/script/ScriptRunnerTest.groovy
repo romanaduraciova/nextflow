@@ -19,12 +19,12 @@ package nextflow.script
 
 import groovyx.gpars.dataflow.DataflowQueue
 import groovyx.gpars.dataflow.DataflowWriteChannel
-import nextflow.Nextflow
 import nextflow.Session
 import nextflow.config.ConfigParser
 import nextflow.exception.ProcessUnrecoverableException
 import nextflow.util.Duration
 import nextflow.util.MemoryUnit
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Timeout
 import test.TestParser
@@ -186,38 +186,6 @@ class ScriptRunnerTest extends Specification {
 
         expect:
         runner.setScript(script).execute().val == '1-2-3'
-
-    }
-
-
-    def 'test process missing variable' () {
-
-        setup:
-        def session = new Session( executor: 'nope' ) {
-            @Override
-            void abort(Throwable cause) {
-                forceTermination()
-            }
-        }
-
-        def runner = new TestScriptRunner(session)
-
-        def randomVar = Nextflow.randomString(5,false)
-        def script = """
-            process test {
-                script:
-                "echo \$$randomVar"
-            }
-
-            """
-        println script
-        when:
-        runner.setScript(script).execute()
-        then:
-        session.fault.error instanceof ProcessUnrecoverableException
-        session.fault.error.cause instanceof MissingPropertyException
-        session.fault.error.cause.message =~ /Unknown variable '$randomVar' -- .*/
-        session.fault.report =~ /No such variable: $randomVar -- .*/
 
     }
 
