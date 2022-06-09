@@ -483,6 +483,9 @@ class PodSpecBuilder {
         if( annotations )
             metadata.annotations = sanitize(annotations, MetaType.ANNOTATION)
 
+        if ( activeDeadlineSeconds > 0 )
+            spec.activeDeadlineSeconds = activeDeadlineSeconds
+
         // job spec
         final result = [
                 apiVersion: 'batch/v1',
