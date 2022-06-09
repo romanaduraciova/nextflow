@@ -477,6 +477,9 @@ class PodSpecBuilder {
         spec.backoffLimit = 0
         spec.template = [spec: pod.spec]
 
+        if ( activeDeadlineSeconds > 0 )
+            spec.activeDeadlineSeconds = activeDeadlineSeconds
+
         // job spec
         final result = [
                 apiVersion: 'batch/v1',
