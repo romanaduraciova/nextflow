@@ -41,6 +41,9 @@ import nextflow.processor.TaskStatus
 import nextflow.trace.TraceRecord
 import nextflow.util.Escape
 import nextflow.util.PathTrie
+
+import java.util.concurrent.TimeUnit
+
 /**
  * Implements the {@link TaskHandler} interface for Kubernetes pods
  *
@@ -186,6 +189,7 @@ class K8sTaskHandler extends TaskHandler {
             .withAnnotations(getAnnotations())
             .withPodOptions(getPodOptions())
 
+
         // when `preserveEntrypoint` is true the launcher is run via `args` instead of `command`
         // to not override the container entrypoint
         if( preserveContainerEntrypoint() ) {
@@ -216,9 +220,16 @@ class K8sTaskHandler extends TaskHandler {
             builder.withHostMount(mount,mount)
         }
 
-        return useJobResource()
-                ? builder.buildAsJob()
-                : builder.build()
+        if ( useJobResource() ) {
+            if ( task.config.time ) {
+                final duration = task.config.getTime()
+                builder.withActiveDeadline(duration.toMillis() / 1000 as int)
+            }
+            return builder.buildAsJob()
+        }
+        else {
+            return builder.build()
+        }
     }
 
     protected PodOptions getPodOptions() {

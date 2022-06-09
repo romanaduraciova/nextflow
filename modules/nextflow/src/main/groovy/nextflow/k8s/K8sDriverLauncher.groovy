@@ -531,7 +531,7 @@ class K8sDriverLauncher {
             .withMemory(headMemory?:"")
             .withCpus(headCpus)
 
-        if ( k8sConfig.useJobResource()) {
+        if ( k8sConfig.useJobResource() ) {
             this.resourceType = ResourceType.Job
             return builder.buildAsJob()
         }
